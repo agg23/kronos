@@ -111,8 +111,16 @@ end
 
 // BARREL SHIFTER
 always_comb begin
+  reg [31:0] op1_reversed;
+  reg [31:0] p4_reversed;
+
+  int i;
+  for (i = 0; i < 32; i = i + 1) begin
+    op1_reversed[i] = op1[31-i];
+  end
+
   // Reverse data to the shifter for SHL operations
-  data = rev ? {<<{op1}} : op1;
+  data = rev ? op1_reversed : op1;
   shift_in = cin & op1[31];
   shamt = op2[4:0];
 
@@ -125,8 +133,12 @@ always_comb begin
   p3 = shamt[3] ? {{ 8{shift_in}}, p2[31:8]}   : p2;
   p4 = shamt[4] ? {{16{shift_in}}, p3[31:16]}  : p3;
 
+  for (i = 0; i < 32; i = i + 1) begin
+    p4_reversed[i] = p4[31-i];
+  end
+
   // Reverse last to get SHL result
-  r_shift = rev ? {<<{p4}} : p4;
+  r_shift = rev ? p4_reversed : p4;
 end
 
 // ============================================================
